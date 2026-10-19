@@ -7,7 +7,7 @@ process.env.NODE_ENV = 'test';
 process.env.DB_DRIVER = 'memory';
 process.env.SSO_SECRET = 'sso-test-secret';
 process.env.LOGIN_RATE_LIMIT = '1000';
-process.env.CORS_ORIGINS = 'https://crm-test.vercel.app';
+process.env.CORS_ORIGINS = 'https://only-this-origin.example';
 
 const { setRepository, MemoryRepository } = await import('../src/db/repository.js');
 const { createApp } = await import('../src/app.js');
@@ -51,21 +51,22 @@ test('santé et route inconnue', async () => {
   assert.equal((await api().get('/api/nope').set(H(admin))).status, 404);
 });
 
-test('prévol CORS : origine autorisée et origine refusée', async () => {
+test('prévol CORS : toutes les origines sont autorisées, même si CORS_ORIGINS est défini', async () => {
   const allowed = await api()
     .options('/api/auth/login')
     .set('Origin', 'https://crm-test.vercel.app')
     .set('Access-Control-Request-Method', 'POST')
     .set('Access-Control-Request-Headers', 'content-type');
   assert.equal(allowed.status, 204);
-  assert.equal(allowed.headers['access-control-allow-origin'], 'https://crm-test.vercel.app');
+  assert.equal(allowed.headers['access-control-allow-origin'], '*');
 
-  const denied = await api()
+  const anyOrigin = await api()
     .options('/api/auth/login')
     .set('Origin', 'https://untrusted.example')
     .set('Access-Control-Request-Method', 'POST')
     .set('Access-Control-Request-Headers', 'content-type');
-  assert.equal(denied.status, 403);
+  assert.equal(anyOrigin.status, 204);
+  assert.equal(anyOrigin.headers['access-control-allow-origin'], '*');
 });
 
 test('authentification : mauvais mot de passe, jeton absent, setup déjà fait', async () => {

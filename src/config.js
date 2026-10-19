@@ -11,7 +11,6 @@ export const config = {
   mongoUri: process.env.MONGODB_URI || '',
   jwtSecret: process.env.JWT_SECRET || (env === 'production' ? '' : 'dev-secret-a-changer'),
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '12h',
-  corsOrigins: list(process.env.CORS_ORIGINS, 'http://localhost:5173,http://127.0.0.1:5173'),
   defaultTenant: process.env.DEFAULT_TENANT || 'default',
   /** Secret partagé avec votre application pour la connexion unique (SSO) : voir POST /api/auth/sso */
   ssoSecret: process.env.SSO_SECRET || '',
